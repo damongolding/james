@@ -6,7 +6,7 @@ import climage
 
 t_size = os.get_terminal_size()
 
-output = climage.to_file('assets/success.jpg', 'cat_ansi',width=t_size.columns)
+output = climage.to_file('assets/success.jpg', 'cat_ansi', is_unicode=True)
 
 with open('cat_ansi', 'r') as f:
     lines = f.readlines()
@@ -14,5 +14,4 @@ with open('cat_ansi', 'r') as f:
         print(line, end="")
         time.sleep(0.05)
 
-os.remove("cat_ansi")
 

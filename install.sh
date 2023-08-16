@@ -31,8 +31,6 @@ sudo apt -y upgrade
 # install things
 sudo apt -y install git python3-rpi.gpio python3-spidev python3-pip python3-pil python3-numpy python3-rich python3-pydantic python3-requests
 
-pip install climage
-
 #  Set up git repo
 git clone $git_url
 cd james-monitor
@@ -51,10 +49,16 @@ sudo raspi-config nonint do_i2c 0
 sudo raspi-config nonint do_spi 0
 
 python3 tests.py
-python3 cat.py
+
+# draw a cat
+while IFS= read -r line
+do
+  echo "$line"
+  sleep 0.05
+done < "cat_ansi"
 
 sleep 5
-# clear
+echo ""
 echo -n "Rebooting in 3"
 sleep 1
 echo -n "...2"
