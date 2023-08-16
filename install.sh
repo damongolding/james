@@ -4,7 +4,13 @@ git_url=https://github.com/damongolding/james-monitor.git
 
 clear
 
-echo "Hey James!"
+echo "
+
+  ∧,,,∧
+(  ̳• · • ̳)
+/    づ♡  Hey James!
+
+"
 sleep 3
 echo -e "\nFirst we need to make sure everything is up to date then we will install some software\n"
 sleep 5
