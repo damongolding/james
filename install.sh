@@ -27,14 +27,14 @@ sudo apt -y install git python3-rpi.gpio python3-spidev python3-pip python3-pil 
 
 #  Set up git repo
 git clone $git_url
-cd james
+cd james-monitor
 git remote add upstream $git_url
 
 # Make update script executable
-chmod a+rx update.sh
+sudo chmod a+rx update.sh
 
 # Add cronjob to update
-(crontab -l ; echo "0 * * * * ~/james/update.sh >/dev/null 2>&1") | crontab -
+(crontab -l ; echo "0 * * * * ~/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 (crontab -l ; echo "@reboot python3 ~/james-monitor/monitor.py >/dev/null 2>&1") | crontab -
 
 
@@ -45,7 +45,7 @@ sudo raspi-config nonint do_spi 0
 python3 tests.py
 
 sleep 5
-clear
+# clear
 echo -n "Rebooting in 3"
 sleep 1
 echo -n "...2"
