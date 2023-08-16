@@ -5,7 +5,7 @@ try:
     from pydantic import BaseModel
     from rich import print as p
 
-    p(f"\n\n[white bold on green] SUCCESS [/] All tests passed\n\n")
+    p(f"\n\n[black bold on green] SUCCESS [/] All tests passed\n\n")
 except ImportError as e:
     class bcolors:
         HEADER = '\033[95m'
