@@ -11,7 +11,7 @@ echo "
 /    づ♡  Hey James!
 
 "
-sleep 3
+sleep 1
 echo -e "\nFirst we need to make sure everything is up to date then we will install some software\n"
 sleep 5
 echo -n "starting in 3"
