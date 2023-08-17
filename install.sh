@@ -24,14 +24,14 @@ sleep 1
 cd /home
 
 # Update system
-sudo apt -y update
-sudo apt -y upgrade
+# sudo apt -y update
+# sudo apt -y upgrade
 
 
-# install things
-sudo apt -y install git python3-pip libopenjp2-7
+# # install things
+# sudo apt -y install git python3-pip libopenjp2-7
 
-sudo pip install rpi.gpio spidev numpy rich pydantic requests
+# sudo pip install rpi.gpio spidev numpy rich pydantic requests
 
 echo "
 
