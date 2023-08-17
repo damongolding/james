@@ -6,7 +6,7 @@ clear
 
 echo "
 
-  ∧,,,∧
+  ^...^
 (  ̳• · • ̳)
 /    づ♡  Hey James!
 

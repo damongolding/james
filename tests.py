@@ -4,6 +4,10 @@ try:
     from PIL import Image
     from pydantic import BaseModel
     from rich import print as p
+    from scd4x import SCD4X
+
+    device = SCD4X(quiet=False)
+    device.self_test()
 
     p(f"\n\n[black bold on green] SUCCESS [/] All tests passed\n\n")
 except ImportError as e:
