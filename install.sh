@@ -33,6 +33,12 @@ sudo apt -y install git python3-pip libopenjp2-7
 
 sudo pip install rpi.gpio spidev numpy rich pydantic requests
 
+echo "
+
+    Cloning repo
+
+"
+
 #  Set up git repo
 git clone $git_url
 cd james-monitor
@@ -41,9 +47,18 @@ git remote add upstream $git_url
 # Make update script executable
 sudo chmod a+rx update.sh
 
+echo "
+
+    Adding tasks
+
+"
+
 # Add cronjob to update
-# (crontab -l ; echo "0 * * * * ~/james-monitor/update.sh >/dev/null 2>&1") | crontab -
-# (crontab -l ; echo "@reboot python3 ~/james-monitor/monitor.py >/dev/null 2>&1") | crontab -
+(crontab -l ; echo "0 * * * * ~/james-monitor/update.sh >/dev/null 2>&1") | crontab -
+
+sudo cp monitor.service /lib/systemd/system/monitor.service
+sudo systemctl start monitor
+sudo systemctl enable monitor
 
 
 # Enable harware for monitor

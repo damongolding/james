@@ -6,5 +6,5 @@ message=$(git merge upstream/main)
 if [ "$message" = "Already up to date." ]; then
     exit 0
 else
-    sudo reboot now
+    sudo systemctl restart monitor
 fi

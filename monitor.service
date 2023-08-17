@@ -2,6 +2,7 @@
 Description=Air monitor
 [Service]
 Type=simple
+Restart=always
 ExecStart=/usr/bin/python ~/james-monitor/demo.py
 [Install]
 WantedBy=multi-user.target
