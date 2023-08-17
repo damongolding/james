@@ -1,3 +1,4 @@
+#!/bin/bash
 cd /opt/james-monitor
 
 git fetch upstream
