@@ -57,7 +57,8 @@ class OfficeMonitor:
 
     def __init__(self) -> None:
         # absolute path to the folder
-        self.DIR_PATH: str = os.path.dirname(os.path.abspath(__name__))
+        # self.DIR_PATH: str = os.path.dirname(os.path.abspath(__name__))
+        self.DIR_PATH: str = os.path.realpath(os.path.dirname(__file__))
 
         self.init_logging()
 
