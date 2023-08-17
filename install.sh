@@ -41,7 +41,7 @@ echo "
 "
 
 #  Set up git repo
-sudo git clone $git_url
+git clone $git_url
 cd james-monitor
 git remote add upstream $git_url
 
@@ -58,7 +58,7 @@ echo "
 (crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
 sudo touch /lib/systemd/system/monitor.service
-echo "
+sudo echo "
 [Unit]
 Description=Air monitor
 [Service]
