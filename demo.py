@@ -254,7 +254,7 @@ class OfficeMonitor:
 
          
                 update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
-                update_display.save("out.png")
+                update_display.save(f"{self.DIR_PATH}/out.png")
 
             #  Check if the co2 level has changed
             if self.past_co2 != co2:
