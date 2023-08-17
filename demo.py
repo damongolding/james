@@ -136,8 +136,6 @@ class OfficeMonitor:
                 temperature = random.uniform(12, 29)
                 relative_humidity = random.uniform(20,70)
 
-                # Change to fahrenheit
-                temperature = self.celsius_to_fahrenheit(temperature)
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)

@@ -162,8 +162,6 @@ class OfficeMonitor:
             try:
                 co2, temperature, relative_humidity, timestamp = self.device.measure()
 
-                # Change to fahrenheit
-                temperature = self.celsius_to_fahrenheit(temperature)
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)

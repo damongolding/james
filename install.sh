@@ -40,7 +40,7 @@ echo "
 "
 
 #  Set up git repo
-git clone $git_url
+sudo git clone $git_url
 cd james-monitor
 git remote add upstream $git_url
 
