@@ -1,8 +1,10 @@
 [Unit]
 Description=Air monitor
+After=network.target
+
 [Service]
-Type=simple
-Restart=always
-ExecStart=/usr/bin/python3 /home/james-monitor/demo.py
+ExecStart=/usr/bin/python3 /opt/james-monitor/demo.py
+Restart=on-failure
+
 [Install]
 WantedBy=multi-user.target

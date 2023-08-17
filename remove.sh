@@ -1,4 +1,4 @@
-cd /home
+cd /opt
 
 sudo rm -r james-monitor
 

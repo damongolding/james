@@ -1,4 +1,4 @@
-cd ~/james-monitor
+cd /opt/james-monitor
 
 git fetch upstream
 message=$(git merge upstream/main)
