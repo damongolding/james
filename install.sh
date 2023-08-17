@@ -13,7 +13,10 @@ echo "
 
 "
 sleep 1
-echo -e "\nFirst we need to make sure everything is up to date then we will install some software\n"
+echo -e "
+First we need to make sure everything is up to date then we will install some software.
+This will take a bit of time
+"
 sleep 5
 echo -n "starting in 3"
 sleep 1
@@ -55,6 +58,7 @@ echo "
 # Add cronjob to update
 (crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
+sudo touch /lib/systemd/system/monitor.service
 sudo echo "
 [Unit]
 Description=Air monitor
