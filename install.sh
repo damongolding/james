@@ -47,6 +47,7 @@ echo "
 git clone $git_url
 cd james-monitor
 git remote add upstream $git_url
+sudo chmod +x update.sh
 
 
 echo "
