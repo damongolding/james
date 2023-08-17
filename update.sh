@@ -1,8 +1,8 @@
 #!/bin/bash
 cd /opt/james-monitor
 
-git fetch upstream
-message=$(git merge upstream/main)
+sudo git fetch upstream
+message=$(sudo git merge upstream/main)
 
 date >> date.txt
 
