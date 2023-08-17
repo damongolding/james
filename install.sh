@@ -21,7 +21,7 @@ sleep 1
 echo -e "...1\n"
 sleep 1
 
-cd ~
+cd /home
 
 # Update system
 sudo apt -y update
@@ -54,7 +54,7 @@ echo "
 "
 
 # Add cronjob to update
-(crontab -l ; echo "0 * * * * ~/james-monitor/update.sh >/dev/null 2>&1") | crontab -
+(crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
 sudo cp monitor.service /lib/systemd/system/monitor.service
 sudo systemctl start monitor
@@ -66,6 +66,7 @@ sudo raspi-config nonint do_i2c 0
 sudo raspi-config nonint do_spi 0
 
 # python3 tests.py
+echo ""
 
 # draw a cat
 while IFS= read -r line
