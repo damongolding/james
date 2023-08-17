@@ -61,7 +61,7 @@ class OfficeMonitor:
 
         self.init_logging()
 
-        logging.info(f"dir path is {self.DIR_PATH}")
+        self.logger.info(f"dir path is {self.DIR_PATH}")
 
         # Font settings
         self.font = ImageFont.truetype(
