@@ -1,6 +1,7 @@
 #!/bin/bash
 
 git_url=https://github.com/damongolding/james-monitor.git
+current_user=$(whoami)
 
 clear
 
@@ -21,7 +22,7 @@ sleep 1
 echo -e "...1\n"
 sleep 1
 
-cd /home
+cd /home/$current_user
 
 # Update system
 # sudo apt -y update
@@ -56,7 +57,18 @@ echo "
 # Add cronjob to update
 (crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
-sudo cp monitor.service /lib/systemd/system/monitor.service
+sudo touch /lib/systemd/system/monitor.service
+echo "
+[Unit]
+Description=Air monitor
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /home/$current_user/james-monitor/demo.py
+[Install]
+WantedBy=multi-user.target
+" >> /lib/systemd/system/monitor.service
+
 sudo systemctl start monitor
 sudo systemctl enable monitor
 
