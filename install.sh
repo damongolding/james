@@ -58,20 +58,21 @@ echo "
 # Add cronjob to update
 (crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
-sudo touch /lib/systemd/system/monitor.service
-sudo echo "
+
+sudo cat > /etc/systemd/system/monitor.service << EOF
 [Unit]
 Description=Air monitor
+After=network.target
 [Service]
-Type=simple
-Restart=always
 ExecStart=/usr/bin/python3 /home/$current_user/james-monitor/demo.py
+Restart=on-failure
 [Install]
 WantedBy=multi-user.target
-" >> /lib/systemd/system/monitor.service
+EOF
 
-sudo systemctl start monitor
+sudo systemctl daemon-reload
 sudo systemctl enable monitor
+sudo systemctl start monitor
 
 
 # Enable harware for monitor
