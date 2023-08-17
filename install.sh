@@ -25,14 +25,14 @@ sleep 1
 cd /home/$current_user
 
 # Update system
-# sudo apt -y update
-# sudo apt -y upgrade
+sudo apt -y update
+sudo apt -y upgrade
 
 
-# # install things
-# sudo apt -y install git python3-pip libopenjp2-7
+# install things
+sudo apt -y install git python3-pip libopenjp2-7
 
-# sudo pip install rpi.gpio spidev numpy rich pydantic requests
+sudo pip install rpi.gpio spidev numpy rich pydantic requests
 
 echo "
 
@@ -45,8 +45,6 @@ git clone $git_url
 cd james-monitor
 git remote add upstream $git_url
 
-# Make update script executable
-sudo chmod a+rx update.sh
 
 echo "
 
@@ -57,7 +55,6 @@ echo "
 # Add cronjob to update
 (crontab -l ; echo "0 * * * * /home/james-monitor/update.sh >/dev/null 2>&1") | crontab -
 
-sudo touch /lib/systemd/system/monitor.service
 sudo echo "
 [Unit]
 Description=Air monitor
