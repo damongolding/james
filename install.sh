@@ -66,7 +66,7 @@ sudo cat > /lib/systemd/system/monitor.service << EOF
 Description=Air monitor
 After=network.target
 [Service]
-ExecStart=/usr/bin/python3 /opt/james-monitor/demo.py
+ExecStart=/usr/bin/python3 /opt/james-monitor/monitor.py
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target

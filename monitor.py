@@ -158,8 +158,7 @@ class OfficeMonitor:
             # Get the latest data from the sensor
             # If the sensor is not connected or not ready, log error, wait 1 second and try again
             try:
-                co2, temperature, relative_humidity, timestamp = self.device.measure()
-
+                co2, temperature, relative_humidity, timestamp = self.device.measure()  # type: ignore
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)
