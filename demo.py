@@ -13,7 +13,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 
 
-@dataclass(slots=True)
+@dataclass()
 class Box:
     width: int
     height: int
@@ -21,7 +21,7 @@ class Box:
     color: tuple[int, int, int]
 
 
-@dataclass(slots=True)
+@dataclass()
 class Icon:
     path: str
     position: tuple[int, int]
@@ -31,7 +31,7 @@ class Icon:
     background_color: tuple[int, int, int]
 
 
-@dataclass(slots=True)
+@dataclass()
 class Statistic:
     name: str
     value: str
