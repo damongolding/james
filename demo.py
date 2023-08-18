@@ -11,7 +11,6 @@ from typing import TextIO
 
 import requests
 from PIL import Image, ImageDraw, ImageFont
-from pydantic import BaseModel
 
 
 @dataclass(slots=True)
