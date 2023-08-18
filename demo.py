@@ -247,9 +247,14 @@ class OfficeMonitor:
                 )
                 draw.bitmap(icon_position, bitmap=Image.open(icon_path))
 
+            for root, dir, files in os.walk("./"):
+                for file in files:
+                    if "out-" in file and file.endswith(".png"):
+                        os.remove(os.path.join(root, file))
+
             update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
 
-            update_display.save(f"{self.DIR_PATH}/out-{ random.randint(0,200)}.png")
+            update_display.save(f"{self.DIR_PATH}/out.png")
 
             #  Check if the co2 level has changed
             if self.past_co2 != co2:
