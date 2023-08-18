@@ -33,10 +33,10 @@ sudo apt -y upgrade
 
 # install things
 sudo apt -y remove python3-pil
+sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7
 sudo apt -y autoremove
-sudo apt -y install git python3-pip libopenjp2-7
 
-sudo pip install rpi.gpio spidev numpy rich pydantic requests Pillow
+sudo pip install spidev rich requests Pillow
 
 echo "
 
