@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import time
+from dataclasses import dataclass
 from logging import Formatter, Logger, StreamHandler
 from time import struct_time
 from typing import TextIO
@@ -13,14 +14,16 @@ from PIL import Image, ImageDraw, ImageFont
 from pydantic import BaseModel
 
 
-class Box(BaseModel):
+@dataclass(slots=True)
+class Box:
     width: int
     height: int
     position: tuple[int, int, int, int]
     color: tuple[int, int, int]
 
 
-class Icon(BaseModel):
+@dataclass(slots=True)
+class Icon:
     path: str
     position: tuple[int, int]
     width: int
@@ -29,7 +32,8 @@ class Icon(BaseModel):
     background_color: tuple[int, int, int]
 
 
-class Statistic(BaseModel):
+@dataclass(slots=True)
+class Statistic:
     name: str
     value: str
     unit: str
@@ -38,12 +42,7 @@ class Statistic(BaseModel):
     icon: Icon
 
 
-class Statistics(BaseModel):
-    pass
-
-
 class OfficeMonitor:
-
     SERVER_IP: str = "http://192.168.86.131:8123"
     HOMEASSISTANT_API_TOKEN: str = ""
 
@@ -83,9 +82,9 @@ class OfficeMonitor:
         )
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
-    
+
     def celsius_to_fahrenheit(self, temp: float) -> float:
-        return  (temp * 9/5) + 32
+        return (temp * 9 / 5) + 32
 
     def update_homeassistant(self, co2_level: int) -> None:
         """
@@ -134,7 +133,7 @@ class OfficeMonitor:
             try:
                 co2 = random.randrange(0, 3000)
                 temperature = random.uniform(12, 29)
-                relative_humidity = random.uniform(20,70)
+                relative_humidity = random.uniform(20, 70)
 
             except Exception as e:
                 self.logger.error(e)
@@ -249,9 +248,9 @@ class OfficeMonitor:
                 )
                 draw.bitmap(icon_position, bitmap=Image.open(icon_path))
 
-         
-                update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
-                update_display.save(f"{self.DIR_PATH}/out.png")
+            update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
+
+            update_display.save(f"{self.DIR_PATH}/out-{ random.randint(0,200)}.png")
 
             #  Check if the co2 level has changed
             if self.past_co2 != co2:

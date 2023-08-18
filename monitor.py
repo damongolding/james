@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import time
+from dataclasses import dataclass
 from logging import Formatter, Logger, StreamHandler
 from time import struct_time
 from typing import TextIO
@@ -10,18 +11,19 @@ from typing import TextIO
 import requests
 import ST7789 as ST7789
 from PIL import Image, ImageDraw, ImageFont
-from pydantic import BaseModel
 from scd4x import SCD4X
 
 
-class Box(BaseModel):
+@dataclass(slots=True)
+class Box:
     width: int
     height: int
     position: tuple[int, int, int, int]
     color: tuple[int, int, int]
 
 
-class Icon(BaseModel):
+@dataclass(slots=True)
+class Icon:
     path: str
     position: tuple[int, int]
     width: int
@@ -30,7 +32,8 @@ class Icon(BaseModel):
     background_color: tuple[int, int, int]
 
 
-class Statistic(BaseModel):
+@dataclass(slots=True)
+class Statistic:
     name: str
     value: str
     unit: str
@@ -39,12 +42,7 @@ class Statistic(BaseModel):
     icon: Icon
 
 
-class Statistics(BaseModel):
-    pass
-
-
 class OfficeMonitor:
-
     SERVER_IP: str = "http://192.168.86.131:8123"
     HOMEASSISTANT_API_TOKEN: str = ""
 
@@ -100,9 +98,9 @@ class OfficeMonitor:
         )
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
-    
+
     def celsius_to_fahrenheit(self, temp: float) -> float:
-        return  (temp * 9/5) + 32
+        return (temp * 9 / 5) + 32
 
     def update_homeassistant(self, co2_level: int) -> None:
         """
@@ -292,8 +290,8 @@ class OfficeMonitor:
                 self.LCD.set_backlight(1)
 
             #  Check if the co2 level has changed
-            if self.past_co2 != co2:
-                self.update_homeassistant(co2)
+            # if self.past_co2 != co2:
+            #     self.update_homeassistant(co2)
 
             self.past_co2 = co2
 
