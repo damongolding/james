@@ -14,8 +14,8 @@ export const actions = {
         const settings = {
             name,
             email,
-            startTime,
-            endTime,
+            startTime: parseInt(startTime as string),
+            endTime: parseInt(endTime as string),
             temp,
         };
 
