@@ -1,4 +1,7 @@
+import { fail } from "@sveltejs/kit";
+import { writeFile } from "node:fs";
 import type { Actions } from "./$types";
+
 export const actions = {
     default: async ({ request }) => {
         const data = await request.formData();
@@ -6,12 +9,41 @@ export const actions = {
         const email = data.get("email");
         const startTime = data.get("start-time");
         const endTime = data.get("end-time");
+        const temp = data.get("temp");
 
-        for (const thing of data) {
-            console.log(thing);
+        const settings = {
+            name,
+            email,
+            startTime,
+            endTime,
+            temp,
+        };
+
+        try {
+            let settingsData = JSON.stringify(settings, null, 2);
+            writeFile("settings.json", settingsData, (err: Error) => {
+                if (err) throw err;
+            });
+            return {
+                success: true,
+                message: "",
+                name,
+                email,
+                startTime,
+                endTime,
+                temp,
+            };
+        } catch {
+            return fail(400, {
+                success: false,
+                error: true,
+                message: "something not right",
+                name,
+                email,
+                startTime,
+                endTime,
+                temp,
+            });
         }
-
-        // return fail(404, { error: true, message: "ass", success: false });
-        return { success: true, name, email, startTime, endTime };
     },
 } satisfies Actions;
