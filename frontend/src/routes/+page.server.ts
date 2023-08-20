@@ -7,6 +7,7 @@ export const actions = {
         const data = await request.formData();
         const name = data.get("name");
         const email = data.get("email");
+        const onContinually = data.get("on-continually");
         const startTime = data.get("start-time");
         const endTime = data.get("end-time");
         const temp = data.get("temp");
@@ -14,6 +15,7 @@ export const actions = {
         const settings = {
             name,
             email,
+            onContinually,
             startTime: parseInt(startTime as string),
             endTime: parseInt(endTime as string),
             temp,
@@ -29,6 +31,7 @@ export const actions = {
                 message: "",
                 name,
                 email,
+                onContinually,
                 startTime,
                 endTime,
                 temp,
@@ -40,6 +43,7 @@ export const actions = {
                 message: "something not right",
                 name,
                 email,
+                onContinually,
                 startTime,
                 endTime,
                 temp,
