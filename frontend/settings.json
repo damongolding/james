@@ -1,8 +1,6 @@
 {
-  "name": "",
-  "email": "",
-  "onContinually": null,
-  "startTime": 8,
-  "endTime": 18,
-  "temperature": null
+  "useCelsius": false,
+  "onContinually": true,
+  "startTime": 1,
+  "endTime": 18
 }

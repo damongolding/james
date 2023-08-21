@@ -1,63 +1,34 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
     import type { ActionData, PageData } from "./$types";
-
+    // @ts-ignore
     import RangeSlider from "svelte-range-slider-pips";
-
-    let values = [7, 18];
-    let onContinually = true;
 
     export let form: ActionData;
     export let data: PageData;
-</script>
 
-{data.settings.temperature}
+    let onContinually = data.settings.onContinually ?? true;
+    let values = [8, 18];
+
+    if (data.settings.startTime && data.settings.endTime) {
+        values = [data.settings.startTime, data.settings.endTime];
+    }
+</script>
 
 <main class="container mx-auto p-8">
     <h1 class="text-4xl my-12">Air Monitor Settings</h1>
 
-    {#if form?.error}
-        <div class="my-24 p-8 bg-red-400 text-white rounded-md">
-            <p>{form?.message}</p>
-        </div>
-    {/if}
-
-    {#if form?.success}
-        <div class="my-24 p-8 bg-green-400 text-white rounded-md">
-            <p>Saved</p>
-        </div>
-    {/if}
-
-    <form method="POST" use:enhance>
+    <form method="POST">
         <div class="space-y-8">
-            <div>
-                <label for="name">Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    value={form?.name ?? data.settings.name}
-                />
-            </div>
-            <div>
-                <label for="email">Email</label>
-                <input
-                    name="email"
-                    type="email"
-                    id="email"
-                    value={form?.email ?? data.settings.email}
-                />
-            </div>
             <div>
                 <h2 class="text-xl mb-2">Temperature</h2>
                 <div class="pl-4 mb-2 cursor-pointer flex items-center">
                     <input
                         type="radio"
                         class="cursor-pointer"
-                        name="temperature"
+                        name="use-celsius"
                         id="c"
-                        value="C"
-                        checked={form?.temperature == "F" ? false : true}
+                        value={true}
+                        checked={data.settings.useCelsius}
                     />
                     <label for="c" class="pl-2 cursor-pointer">Celsius</label>
                 </div>
@@ -65,10 +36,10 @@
                     <input
                         type="radio"
                         class="cursor-pointer"
-                        name="temperature"
+                        name="use-celsius"
                         id="f"
-                        value="F"
-                        checked={form?.temperature == "F" ? true : false}
+                        value={false}
+                        checked={!data.settings.useCelsius}
                     />
                     <label for="f" class="pl-2 cursor-pointer">Fahrenheit</label
                     >
@@ -107,10 +78,23 @@
                 <hr />
             </div>
 
-            <button
-                class="rounded-md py-2 px-12 bg-green-600 text-white font-bold text-xl"
-                >Save</button
-            >
+            <div class="flex items-center">
+                <button
+                    class="rounded-md mr-8 py-2 px-12 bg-green-600 text-white font-bold text-xl"
+                    >Save</button
+                >
+                {#if form?.error}
+                    <div class=" p-8 bg-red-400 text-white rounded-md">
+                        <p>{form?.message}</p>
+                    </div>
+                {/if}
+
+                {#if form?.success}
+                    <div class=" p-8 bg-green-400 text-white rounded-md">
+                        <p>Saved</p>
+                    </div>
+                {/if}
+            </div>
         </div>
     </form>
 </main>

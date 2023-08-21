@@ -44,10 +44,10 @@ class Statistic:
 
 @dataclass
 class Settings:
-    on_continually: str | None
+    use_celsius: bool
+    on_continually: bool
     start_time: int
     end_time: int
-    temperature: str
 
 
 class OfficeMonitor:
@@ -103,17 +103,17 @@ class OfficeMonitor:
             with open("./frontend/settings.json", "r") as f:
                 settings: dict = json.load(f)
                 self.settings = Settings(
-                    on_continually=settings.get("onContinually", None),
+                    use_celsius=settings.get("useCelsius", True),
+                    on_continually=settings.get("onContinually", True),
                     start_time=settings.get("startTime", 7),
                     end_time=settings.get("endTime", 18),
-                    temperature=settings.get("temperature", "C"),
                 )
         except:
             self.settings = Settings(
-                on_continually=None,
+                use_celsius=True,
+                on_continually=True,
                 start_time=7,
                 end_time=18,
-                temperature="C",
             )
 
     def init_logging(self) -> None:
@@ -192,7 +192,7 @@ class OfficeMonitor:
             try:
                 co2, temperature, relative_humidity, timestamp = self.device.measure()  # type: ignore
 
-                if self.settings.temperature == "F":
+                if not self.settings.use_celsius:
                     temperature = self.celsius_to_fahrenheit(temperature)
             except Exception as e:
                 self.logger.error(e)
@@ -313,7 +313,7 @@ class OfficeMonitor:
             current_min: int = current_time.tm_min
 
             if (
-                self.settings.on_continually != None
+                self.settings.on_continually
                 or self.settings.start_time <= current_hour <= self.settings.end_time
             ):
                 self.logger.info("Monitor screen on")

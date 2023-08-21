@@ -1,6 +1,7 @@
 #!/bin/bash
 
 git_url=https://github.com/damongolding/james-monitor.git
+HOSTNAME=$(echo $HOSTNAME)
 
 clear
 
@@ -98,7 +99,7 @@ sudo cat > /lib/systemd/system/monitor-frontend.service << EOF
 Description=Air monitor frontend
 After=network.target
 [Service]
-ExecStart=HOST=127.0.0.1 PORT=8080 PROTOCOL_HEADER=x-forwarded-proto HOST_HEADER=x-forwarded-host /usr/bin/node /opt/james-monitor/frontend/build
+ExecStart=cd /opt/james-monitor/frontend/build && ORIGIN=http://$HOSTNAME.local HOST=0.0.0.0 PORT=80 /usr/bin/node build
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
