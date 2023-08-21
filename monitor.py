@@ -42,6 +42,14 @@ class Statistic:
     icon: Icon
 
 
+@dataclass
+class Settings:
+    on_continually: str | None
+    start_time: int
+    end_time: int
+    temperature: str
+
+
 class OfficeMonitor:
     SERVER_IP: str = "http://192.168.86.131:8123"
     HOMEASSISTANT_API_TOKEN: str = ""
@@ -53,6 +61,8 @@ class OfficeMonitor:
     FONT_SIZE: int = 152
 
     past_co2: int = 0
+
+    settings: Settings
 
     def __init__(self) -> None:
         # absolute path to the folder
@@ -85,6 +95,26 @@ class OfficeMonitor:
         self.unit_font = ImageFont.truetype(
             f"{self.DIR_PATH}/assets/Lato-Bold.ttf", self.FONT_SIZE // 2
         )
+
+        self.load_settings()
+
+    def load_settings(self):
+        try:
+            with open("./frontend/settings.json", "r") as f:
+                settings: dict = json.load(f)
+                self.settings = Settings(
+                    on_continually=settings.get("onContinually", None),
+                    start_time=settings.get("startTime", 7),
+                    end_time=settings.get("endTime", 18),
+                    temperature=settings.get("temperature", "C"),
+                )
+        except:
+            self.settings = Settings(
+                on_continually=None,
+                start_time=7,
+                end_time=18,
+                temperature="C",
+            )
 
     def init_logging(self) -> None:
         """
@@ -155,10 +185,15 @@ class OfficeMonitor:
         self.logger.info("Starting Office Monitor")
 
         while 1:
+            self.load_settings()
+
             # Get the latest data from the sensor
             # If the sensor is not connected or not ready, log error, wait 1 second and try again
             try:
                 co2, temperature, relative_humidity, timestamp = self.device.measure()  # type: ignore
+
+                if self.settings.temperature == "F":
+                    temperature = self.celsius_to_fahrenheit(temperature)
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)
@@ -277,16 +312,17 @@ class OfficeMonitor:
             current_hour: int = current_time.tm_hour
             current_min: int = current_time.tm_min
 
-            if current_hour <= self.HOUR_STARTUP:
-                self.LCD.set_backlight(0)
-            elif current_hour > self.HOUR_SHUTOFF:
-                self.LCD.set_backlight(0)
-            elif current_hour == self.HOUR_SHUTOFF and current_min >= self.MIN_SHUTOFF:
-                self.LCD.set_backlight(0)
-            else:
+            if (
+                self.settings.on_continually != None
+                or self.settings.start_time <= current_hour <= self.settings.end_time
+            ):
+                self.logger.info("Monitor screen on")
                 update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
                 self.LCD.display(update_display)
                 self.LCD.set_backlight(1)
+            else:
+                self.logger.info("Monitor screen off")
+                self.LCD.set_backlight(0)
 
             #  Check if the co2 level has changed
             # if self.past_co2 != co2:

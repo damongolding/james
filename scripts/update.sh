@@ -9,4 +9,5 @@ if [ "$message" = "Already up to date." ]; then
     exit 0
 else
     sudo systemctl restart monitor
+    sudo systemctl restart monitor-frontend
 fi

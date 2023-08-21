@@ -1,8 +1,8 @@
 {
-  "name": "ass",
+  "name": "",
   "email": "",
-  "onContinually": "on",
-  "startTime": 7,
+  "onContinually": null,
+  "startTime": 8,
   "endTime": 18,
-  "temp": null
+  "temperature": null
 }

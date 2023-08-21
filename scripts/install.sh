@@ -33,7 +33,7 @@ sudo apt -y upgrade
 
 # install things
 sudo apt -y remove python3-pil
-sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7
+sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7 nodejs npm
 sudo apt -y autoremove
 
 sudo pip install spidev rich requests Pillow
@@ -48,7 +48,7 @@ echo "
 git clone $git_url
 cd james-monitor
 git remote add upstream $git_url
-sudo chmod +x update.sh
+sudo chmod +x scripts/update.sh
 
 
 echo "
@@ -58,7 +58,7 @@ echo "
 "
 
 # Add cronjob to update
-(crontab -l ; echo "0 * * * * /opt/james-monitor/update.sh >/dev/null 2>&1") | crontab -
+(crontab -l ; echo "0 * * * * /opt/james-monitor/scripts/update.sh >/dev/null 2>&1") | crontab -
 
 
 sudo cat > /lib/systemd/system/monitor.service << EOF
@@ -66,7 +66,7 @@ sudo cat > /lib/systemd/system/monitor.service << EOF
 Description=Air monitor
 After=network.target
 [Service]
-ExecStart=/usr/bin/python3 /opt/james-monitor/monitor.py
+ExecStart=/usr/bin/python3 /opt/james-monitor/demo.py
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
@@ -83,6 +83,31 @@ sudo raspi-config nonint do_spi 0
 
 # python3 tests.py
 echo ""
+
+echo "
+
+  Setting up frontend
+
+"
+cd frontend
+npm install
+npm run build
+
+sudo cat > /lib/systemd/system/monitor-frontend.service << EOF
+[Unit]
+Description=Air monitor frontend
+After=network.target
+[Service]
+ExecStart=HOST=127.0.0.1 PORT=8080 PROTOCOL_HEADER=x-forwarded-proto HOST_HEADER=x-forwarded-host /usr/bin/node /opt/james-monitor/frontend/build
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable monitor-frontend
+sudo systemctl start monitor-frontend
+
 
 # draw a cat
 while IFS= read -r line

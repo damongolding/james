@@ -41,6 +41,14 @@ class Statistic:
     icon: Icon
 
 
+@dataclass
+class Settings:
+    on_continually: str | None
+    start_time: int
+    end_time: int
+    temperature: str
+
+
 class OfficeMonitor:
     SERVER_IP: str = "http://192.168.86.131:8123"
     HOMEASSISTANT_API_TOKEN: str = ""
@@ -53,13 +61,13 @@ class OfficeMonitor:
 
     past_co2: int = 0
 
+    settings: Settings
+
     def __init__(self) -> None:
         # absolute path to the folder
         self.DIR_PATH: str = os.path.realpath(os.path.dirname(__file__))
 
         self.init_logging()
-
-        self.logger.info(f"dir path is {self.DIR_PATH}")
 
         # Font settings
         self.font = ImageFont.truetype(
@@ -68,6 +76,26 @@ class OfficeMonitor:
         self.unit_font = ImageFont.truetype(
             f"{self.DIR_PATH}/assets/Lato-Bold.ttf", self.FONT_SIZE // 2
         )
+
+        self.load_settings()
+
+    def load_settings(self):
+        try:
+            with open("./frontend/settings.json", "r") as f:
+                settings: dict = json.load(f)
+                self.settings = Settings(
+                    on_continually=settings.get("onContinually", None),
+                    start_time=settings.get("startTime", 7),
+                    end_time=settings.get("endTime", 18),
+                    temperature=settings.get("temperature", "C"),
+                )
+        except:
+            self.settings = Settings(
+                on_continually=None,
+                start_time=7,
+                end_time=18,
+                temperature="C",
+            )
 
     def init_logging(self) -> None:
         """
@@ -89,7 +117,18 @@ class OfficeMonitor:
         """
         Updates the Home Assistant config file with the latest CO2 level
         """
-        pass
+        try:
+            requests.post(
+                url=f"{self.SERVER_IP}/api/states/input_number.office_monitor",
+                headers={
+                    "Authorization": f"Bearer {self.HOMEASSISTANT_API_TOKEN}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps({"state": co2_level}),
+            )
+
+        except Exception as e:
+            self.logger.error(e)
 
     @functools.lru_cache(maxsize=128)
     def co2_level_color(self, co2_level: int) -> tuple:
@@ -127,6 +166,8 @@ class OfficeMonitor:
         self.logger.info("Starting Office Monitor")
 
         while 1:
+            self.load_settings()
+
             # Get the latest data from the sensor
             # If the sensor is not connected or not ready, log error, wait 1 second and try again
             try:
@@ -134,6 +175,8 @@ class OfficeMonitor:
                 temperature = random.uniform(12, 29)
                 relative_humidity = random.uniform(20, 70)
 
+                if self.settings.temperature == "F":
+                    temperature = self.celsius_to_fahrenheit(temperature)
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)
@@ -247,18 +290,22 @@ class OfficeMonitor:
                 )
                 draw.bitmap(icon_position, bitmap=Image.open(icon_path))
 
-            for root, dir, files in os.walk("./"):
-                for file in files:
-                    if "out-" in file and file.endswith(".png"):
-                        os.remove(os.path.join(root, file))
+            #  Check time and if it between 4:29pm and 7am, turn off the display
+            current_time: struct_time = time.localtime()
+            current_hour: int = current_time.tm_hour
 
             update_display = image.resize((240, 240), Image.Resampling.LANCZOS)
 
-            update_display.save(f"{self.DIR_PATH}/out.png")
+            if (
+                self.settings.on_continually != None
+                or self.settings.start_time <= current_hour <= self.settings.end_time
+            ):
+                self.logger.info("Monitor screen on")
+                update_display.save(f"{self.DIR_PATH}/out-on.png")
 
-            #  Check if the co2 level has changed
-            if self.past_co2 != co2:
-                self.update_homeassistant(co2)
+            else:
+                self.logger.info("Monitor screen off")
+                update_display.save(f"{self.DIR_PATH}/out-off.png")
 
             self.past_co2 = co2
 

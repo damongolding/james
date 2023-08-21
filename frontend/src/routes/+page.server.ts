@@ -1,6 +1,17 @@
 import { fail } from "@sveltejs/kit";
-import { writeFile } from "node:fs";
-import type { Actions } from "./$types";
+import { readFileSync, writeFile } from "node:fs";
+import type { Actions, PageLoad } from "./$types";
+
+export const load: PageLoad = async () => {
+    try {
+        const data = await readFileSync("settings.json", "utf8");
+        console.log(data);
+        const settings = JSON.parse(data);
+        return { settings };
+    } catch (e) {
+        console.log("Err", e);
+    }
+};
 
 export const actions = {
     default: async ({ request }) => {
@@ -10,7 +21,7 @@ export const actions = {
         const onContinually = data.get("on-continually");
         const startTime = data.get("start-time");
         const endTime = data.get("end-time");
-        const temp = data.get("temp");
+        const temperature = data.get("temperature");
 
         const settings = {
             name,
@@ -18,7 +29,7 @@ export const actions = {
             onContinually,
             startTime: parseInt(startTime as string),
             endTime: parseInt(endTime as string),
-            temp,
+            temperature,
         };
 
         try {
@@ -34,7 +45,7 @@ export const actions = {
                 onContinually,
                 startTime,
                 endTime,
-                temp,
+                temperature,
             };
         } catch {
             return fail(400, {
@@ -46,7 +57,7 @@ export const actions = {
                 onContinually,
                 startTime,
                 endTime,
-                temp,
+                temperature,
             });
         }
     },
