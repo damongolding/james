@@ -1,7 +1,6 @@
 #!/bin/bash
 
 git_url=https://github.com/damongolding/james-monitor.git
-HOSTNAME=$(echo $HOSTNAME)
 
 clear
 
@@ -34,7 +33,7 @@ sudo apt -y upgrade
 
 # install things
 sudo apt -y remove python3-pil
-sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7 nodejs npm
+sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7
 sudo apt -y autoremove
 
 sudo pip install spidev rich requests Pillow
@@ -90,16 +89,13 @@ echo "
   Setting up frontend
 
 "
-cd frontend
-npm install
-npm run build
 
 sudo cat > /lib/systemd/system/monitor-frontend.service << EOF
 [Unit]
 Description=Air monitor frontend
 After=network.target
 [Service]
-ExecStart=cd /opt/james-monitor/frontend/build && ORIGIN=http://$HOSTNAME.local HOST=0.0.0.0 PORT=80 /usr/bin/node build
+ExecStart=cd /opt/james-monitor/frontend && sudo env GIN_MODE=release ./monitor-server
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
