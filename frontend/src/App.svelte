@@ -1,8 +1,12 @@
 <script lang="ts">
+    import { Toast } from "flowbite-svelte";
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
+
     import "./app.css";
     // @ts-ignore
-    import RangeSlider from "svelte-range-slider-pips";
+    import { Icon } from "flowbite-svelte-icons"; // @ts-ignore
+    import RangeSlider from "svelte-range-slider-pips"; // @ts-ignore
 
     interface Settings {
         useCelsius: boolean;
@@ -19,6 +23,9 @@
     let onContinually = false;
     let values = [7, 18];
     let useCelsius = true;
+
+    let showToast = false;
+    let counterToast = 6;
 
     onMount(async () => {
         const request = await fetch("/settings");
@@ -44,8 +51,16 @@
         const r: Response = await response.json();
 
         if (r.saved && r.success) {
+            showToast = true;
+            counterToast = 6;
+            timeout();
         }
     };
+
+    function timeout() {
+        if (--counterToast > 0) return setTimeout(timeout, 1000);
+        showToast = false;
+    }
 </script>
 
 <main class="container mx-auto p-8">
@@ -115,24 +130,28 @@
 
             <div class="flex items-center">
                 <button
-                    class="rounded-md mr-8 py-2 px-12 bg-green-600 text-white font-bold text-xl"
+                    class="rounded-md mr-8 py-2 px-12 bg-green-600 hover:bg-green-700 text-white font-bold text-xl"
                     >Save</button
                 >
-                <!-- {#if form?.error}
-                    <div class=" p-8 bg-red-400 text-white rounded-md">
-                        <p>{form?.message}</p>
-                    </div>
-                {/if}
-
-                {#if form?.success}
-                    <div class=" p-8 bg-green-400 text-white rounded-md">
-                        <p>Saved</p>
-                    </div>
-                {/if} -->
             </div>
         </div>
     </form>
 </main>
+
+<Toast
+    color="none"
+    position="bottom-right"
+    transition={fly}
+    params={{ x: 200 }}
+    divClass="w-full max-w-xs p-4 text-white bg-green-600 shadow gap-3"
+    bind:open={showToast}
+>
+    <svelte:fragment slot="icon">
+        <Icon name="check-circle-solid" class="w-5 h-5" />
+        <span class="sr-only">Check icon</span>
+    </svelte:fragment>
+    Settings saved.
+</Toast>
 
 <style>
     :root {

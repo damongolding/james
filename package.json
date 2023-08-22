@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "flowbite-svelte": "^0.44.4",
+    "flowbite-svelte-icons": "^0.3.6"
+  }
+}
