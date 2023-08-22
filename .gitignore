@@ -10,7 +10,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -174,7 +173,6 @@ vite.config.ts.timestamp-*
 
 .DS_Store
 node_modules
-dist
 test-results/
 package-lock.json
 yarn.lock
