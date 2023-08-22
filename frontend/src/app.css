@@ -4,9 +4,9 @@
 
 
 html, body{
-    @apply bg-gray-100;
+    @apply bg-gray-100 overflow-x-hidden;
 }
 
 main{
-    @apply bg-white my-8;
+    @apply bg-white my-8 overflow-x-hidden;
 }
