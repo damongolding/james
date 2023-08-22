@@ -23,12 +23,28 @@
         onContinually = settings.onContinually;
         values = [settings.startTime, settings.endTime];
     });
+
+    const formHandler = async (e: SubmitEvent) => {
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = new URLSearchParams();
+        for (let field of formData) {
+            const [key, value] = field;
+            data.append(key, <string>value);
+        }
+
+        const response = await fetch("/", {
+            method: "POST",
+            body: data,
+        });
+        console.log(response);
+        // const r = await response.json();
+    };
 </script>
 
 <main class="container mx-auto p-8">
     <h1 class="text-4xl my-12">Air Monitor Settings</h1>
 
-    <form method="POST">
+    <form method="POST" on:submit|preventDefault={formHandler}>
         <div class="space-y-8">
             <div>
                 <h2 class="text-xl mb-2">Temperature</h2>

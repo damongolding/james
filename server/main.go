@@ -83,6 +83,10 @@ func main() {
 		endTime, err := strconv.Atoi(c.PostForm("end-time"))
 		if err != nil {
 			fmt.Println(err)
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"saved":   false,
+			})
 			return
 		}
 
@@ -96,10 +100,17 @@ func main() {
 		err = saveSettings(settings)
 		if err != nil {
 			fmt.Println(err)
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"saved":   false,
+			})
 			return
 		}
 
-		c.HTML(http.StatusOK, "index.html", nil)
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"saved":   true,
+		})
 	})
 
 	r.GET("/settings", func(c *gin.Context) {
