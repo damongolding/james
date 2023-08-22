@@ -89,9 +89,9 @@ class OfficeMonitor:
                     start_time=settings.get("startTime", 7),
                     end_time=settings.get("endTime", 18),
                 )
-                print(self.settings)
+                s(self.settings)
         except Exception as error:
-            print("ERROR", error)
+            self.logger.error("ERROR", error)
             self.settings = Settings(
                 use_celsius=True,
                 on_continually=True,
