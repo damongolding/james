@@ -191,4 +191,3 @@ vite.config.js.timestamp-*
 .test-tmp
 symlink-from
 .idea/
-server/monitor-server
