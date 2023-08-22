@@ -81,7 +81,7 @@ class OfficeMonitor:
 
     def load_settings(self):
         try:
-            with open("./server/settings.json", "r") as f:
+            with open(f"{self.DIR_PATH}/server/settings.json", "r") as f:
                 settings: dict = json.load(f)
                 self.settings = Settings(
                     use_celsius=settings.get("useCelsius", True),
