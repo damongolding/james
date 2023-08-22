@@ -11,6 +11,11 @@
         endTime: number;
     }
 
+    interface Response {
+        success: boolean;
+        saved: boolean;
+    }
+
     let onContinually = false;
     let values = [7, 18];
     let useCelsius = true;
@@ -36,8 +41,10 @@
             method: "POST",
             body: data,
         });
-        console.log(response);
-        // const r = await response.json();
+        const r: Response = await response.json();
+
+        if (r.saved && r.success) {
+        }
     };
 </script>
 
