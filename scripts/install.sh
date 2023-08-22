@@ -95,7 +95,7 @@ sudo cat > /lib/systemd/system/monitor-frontend.service << EOF
 Description=Air monitor frontend
 After=network.target
 [Service]
-ExecStart=cd /opt/james-monitor/frontend && sudo env GIN_MODE=release ./monitor-server
+ExecStart=sudo env GIN_MODE=release /opt/james-monitor/server/monitor-server
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
@@ -111,7 +111,7 @@ while IFS= read -r line
 do
   echo "$line"
   sleep 0.05
-done < "cat_ansi"
+done < "assets/cat_ansi"
 
 sleep 5
 echo ""

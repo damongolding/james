@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ type Settings struct {
 func loadSettings() (Settings, error) {
 	var settings Settings
 
-	jsonFile, err := os.Open("./settings.json")
+	jsonFile, err := os.Open(exPath + "/settings.json")
 	if err != nil {
 		return settings, err
 	}
@@ -44,7 +45,7 @@ func saveSettings(settings Settings) error {
 		return err
 	}
 
-	err = os.WriteFile("./settings.json", out, 0777)
+	err = os.WriteFile(exPath+"/settings.json", out, 0777)
 	if err != nil {
 		return err
 	}
@@ -52,11 +53,23 @@ func saveSettings(settings Settings) error {
 	return nil
 }
 
+var exPath string
+
+func init() {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath = filepath.Dir(ex)
+	fmt.Println(exPath)
+
+}
+
 func main() {
 	r := gin.Default()
 
-	r.LoadHTMLFiles("../frontend/dist/index.html")
-	r.Static("/assets", "../frontend/dist/assets")
+	r.LoadHTMLFiles(exPath + "/../frontend/dist/index.html")
+	r.Static("/assets", exPath+"/../frontend/dist/assets")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
@@ -99,5 +112,5 @@ func main() {
 		c.JSON(http.StatusOK, settings)
 	})
 
-	r.Run(":80")
+	r.Run(":8080")
 }
