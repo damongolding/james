@@ -40,7 +40,9 @@ sudo pip install spidev rich requests Pillow
 
 echo "
 
+----------------------
     Cloning repo
+----------------------
 
 "
 
@@ -50,10 +52,24 @@ cd james-monitor
 git remote add upstream $git_url
 sudo chmod +x scripts/update.sh
 
+echo "
+
+----------------------
+    Enabling hardware
+----------------------
+
+"
+
+# Enable harware for monitor
+sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_spi 0
+
 
 echo "
 
+----------------------
     Adding tasks
+----------------------
 
 "
 
@@ -72,23 +88,6 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable monitor
-sudo systemctl start monitor
-
-
-# Enable harware for monitor
-sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
-
-# python3 tests.py
-echo ""
-
-echo "
-
-  Setting up frontend
-
-"
 
 sudo cat > /lib/systemd/system/monitor-frontend.service << EOF
 [Unit]
@@ -102,8 +101,25 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
+
 sudo systemctl enable monitor-frontend
 sudo systemctl start monitor-frontend
+
+sudo systemctl enable monitor
+sudo systemctl start monitor
+
+
+echo "
+
+----------------------
+    Running tests
+----------------------
+
+"
+
+
+# python3 tests.py
+echo ""
 
 
 # draw a cat
