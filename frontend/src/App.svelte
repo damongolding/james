@@ -26,7 +26,7 @@
 
     const sliderVerticalMax = 1025;
     let windowWidth = 0;
-    $: sliderVertical = windowWidth < sliderVerticalMax ? true : false;
+    $: sliderVertical = windowWidth > sliderVerticalMax ? false : true;
     $: displaySuffix =
         windowWidth < 1280 ? (sliderVertical ? ":00" : "") : ":00";
 
