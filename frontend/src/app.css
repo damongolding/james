@@ -10,3 +10,7 @@ html, body{
 main{
     @apply bg-white my-8 overflow-x-hidden;
 }
+
+.rangeSlider.vertical{
+    height: 50rem;
+}

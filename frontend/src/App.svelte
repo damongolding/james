@@ -24,17 +24,29 @@
     let values = [7, 18];
     let useCelsius = true;
 
+    const sliderVerticalMax = 1025;
+    let windowWidth = 0;
+    $: sliderVertical = windowWidth < sliderVerticalMax ? true : false;
+    $: displaySuffix =
+        windowWidth < 1280 ? (sliderVertical ? ":00" : "") : ":00";
+
     let showToast = false;
     let counterToast = 6;
 
-    onMount(async () => {
-        const request = await fetch("/settings");
-        const settings: Settings = await request.json();
+    const debounce = (func: Function, delay: number) => {
+        let timer: number;
 
-        useCelsius = settings.useCelsius;
-        onContinually = settings.onContinually;
-        values = [settings.startTime, settings.endTime];
-    });
+        return function (this: Function) {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(context, args), delay);
+        };
+    };
+
+    const getWindowWidth = () => (windowWidth = window.innerWidth);
+
+    const debouncedGetWindowWidth = debounce(getWindowWidth, 300);
 
     const formHandler = async (e: SubmitEvent) => {
         const formData = new FormData(e.target as HTMLFormElement);
@@ -61,6 +73,26 @@
         if (--counterToast > 0) return setTimeout(timeout, 1000);
         showToast = false;
     }
+
+    onMount(async (): Promise<any> => {
+        try {
+            const request = await fetch("/settings");
+            const settings: Settings = await request.json();
+
+            useCelsius = settings.useCelsius;
+            onContinually = settings.onContinually;
+            values = [settings.startTime, settings.endTime];
+        } catch {
+            console.error("Couldn't get settings");
+        }
+
+        getWindowWidth();
+        window.addEventListener("resize", debouncedGetWindowWidth);
+
+        return () => {
+            window.removeEventListener("resize", debouncedGetWindowWidth);
+        };
+    });
 </script>
 
 <main class="container mx-auto p-8">
@@ -94,18 +126,29 @@
                     >
                 </div>
             </div>
-            <div class="flex items-center">
-                <input
-                    type="checkbox"
-                    id="on-continually"
-                    name="on-continually"
-                    class="cursor-pointer"
-                    value="true"
-                    bind:checked={onContinually}
-                />
-                <label for="on-continually" class="pl-2 cursor-pointer">
-                    <h2 class="text-xl">On all day</h2>
-                </label>
+            <div class="">
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        id="on-continually"
+                        name="on-continually"
+                        class="cursor-pointer"
+                        value="true"
+                        bind:checked={onContinually}
+                    />
+                    <label for="on-continually" class="pl-2 cursor-pointer">
+                        <h2 class="text-xl">Keep the display on permanently</h2>
+                    </label>
+                </div>
+                <p class="pt-1 text-gray-700">
+                    <small>
+                        {#if onContinually}
+                            Disabling this will allow you to choose a time range
+                        {:else}
+                            Enable this to have the display on permanently
+                        {/if}
+                    </small>
+                </p>
             </div>
             <div class={onContinually ? "disabled" : ""}>
                 <RangeSlider
@@ -117,20 +160,23 @@
                     pips
                     hoverable
                     all="label"
-                    suffix=":00"
+                    suffix={displaySuffix}
+                    springValues={{ stiffness: 0.15, damping: 0.5 }}
                     disabled={onContinually}
+                    vertical={sliderVertical}
+                    reversed={sliderVertical}
                 />
                 <input type="hidden" name="start-time" value={values[0]} />
                 <input type="hidden" name="end-time" value={values[1]} />
             </div>
 
-            <div class="pt-24 pb-2">
+            <div class={`${sliderVertical ? "pt-0" : "pt-24"} pb-2`}>
                 <hr />
             </div>
 
             <div class="flex items-center">
                 <button
-                    class="rounded-md mr-8 py-2 px-12 bg-green-600 hover:bg-green-700 text-white font-bold text-xl"
+                    class="rounded-md mr-8 py-2 px-12 bg-green-500 hover:bg-green-700 text-white font-bold text-xl"
                     >Save</button
                 >
             </div>
@@ -155,7 +201,8 @@
 
 <style>
     :root {
-        --range-handle-inactive: #9893dd;
+        --range-range: rgb(14, 159, 110);
+        --range-handle-inactive: var(--range-range);
     }
 
     .disabled {
