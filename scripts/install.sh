@@ -36,7 +36,7 @@ sudo apt -y remove python3-pil
 sudo apt -y install git python3-pip python3-numpy python3-rpi.gpio libopenjp2-7
 sudo apt -y autoremove
 
-sudo pip install spidev rich requests Pillow
+sudo pip install spidev rich requests Pillow scd4x
 
 echo "
 
