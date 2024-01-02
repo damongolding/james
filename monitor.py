@@ -77,23 +77,30 @@ class OfficeMonitor:
 
         self.init_logging()
 
-        # initiate CO2 sensor
-        self.device = SCD4X(quiet=False)
-        self.device.start_periodic_measurement()
+        try:
+            # initiate CO2 sensor
+            self.device = SCD4X(quiet=False)
+            self.device.start_periodic_measurement()
 
-        # initiate LCD display
-        self.LCD = ST7789.ST7789(
-            height=240,
-            rotation=90,
-            port=0,
-            cs=ST7789.BG_SPI_CS_FRONT,  # BG_SPI_CS_BACK or BG_SPI_CS_FRONT
-            dc=9,
-            # 18 for back BG slot, 19 for front BG slot.
-            backlight=19,
-            spi_speed_hz=80 * 1000 * 1000,
-            offset_left=0,
-            offset_top=0,
-        )
+            # initiate LCD display
+            self.LCD = ST7789.ST7789(
+                height=240,
+                rotation=90,
+                port=0,
+                cs=ST7789.BG_SPI_CS_FRONT,  # BG_SPI_CS_BACK or BG_SPI_CS_FRONT
+                dc=9,
+                # 18 for back BG slot, 19 for front BG slot.
+                backlight=19,
+                spi_speed_hz=80 * 1000 * 1000,
+                offset_left=0,
+                offset_top=0,
+            )
+        except Exception as e:
+            requests.post(
+                "https://ntfy.damongolding.com/james",
+                data=f"James' monitor init error: {e}",
+                headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
+            )
 
         # Font settings
         self.font = ImageFont.truetype(
