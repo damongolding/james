@@ -8,9 +8,17 @@ from logging import Formatter, Logger, StreamHandler
 from time import struct_time
 
 import requests
-import ST7789 as ST7789
-from PIL import Image, ImageDraw, ImageFont
-from scd4x import SCD4X
+
+try:
+    import ST7789 as ST7789
+    from PIL import Image, ImageDraw, ImageFont
+    from scd4x import SCD4X
+except Exception as e:
+    requests.post(
+        "https://ntfy.damongolding.com/james",
+        data=f"James' monitor error import: {e}",
+        headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
+    )
 
 
 @dataclass
