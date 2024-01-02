@@ -6,7 +6,6 @@ import time
 from dataclasses import dataclass
 from logging import Formatter, Logger, StreamHandler
 from time import struct_time
-from typing import TextIO
 
 import requests
 import ST7789 as ST7789
@@ -14,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 from scd4x import SCD4X
 
 
-@dataclass()
+@dataclass
 class Box:
     width: int
     height: int
@@ -22,7 +21,7 @@ class Box:
     color: tuple[int, int, int]
 
 
-@dataclass()
+@dataclass
 class Icon:
     path: str
     position: tuple[int, int]
@@ -32,7 +31,7 @@ class Icon:
     background_color: tuple[int, int, int]
 
 
-@dataclass()
+@dataclass
 class Statistic:
     name: str
     value: str
@@ -98,6 +97,15 @@ class OfficeMonitor:
 
         self.load_settings()
 
+        try:
+            requests.post(
+                "https://ntfy.damongolding.com/james",
+                data=f"James' monitor starting up. On con: {self.settings.on_continually}",
+                headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
+            )
+        except:
+            pass
+
     def load_settings(self):
         try:
             with open(f"{self.DIR_PATH}/server/settings.json", "r") as f:
@@ -122,7 +130,7 @@ class OfficeMonitor:
         """
         self.logger: Logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
-        self.handler: StreamHandler[TextIO] = logging.StreamHandler()
+        self.handler = logging.FileHandler(f"{self.DIR_PATH}/log.txt", mode="w")
         self.formatter: Formatter = logging.Formatter(
             "%(asctime)s : %(levelname)s : %(message)s", "%Y-%m-%d %H:%M:%S"
         )
@@ -150,7 +158,7 @@ class OfficeMonitor:
             self.logger.error(e)
 
     @functools.lru_cache(maxsize=128)
-    def co2_level_color(self, co2_level: int) -> tuple:
+    def co2_level_color(self, co2_level: int) -> tuple[int, int, int]:
         """
         Returns a color based on the submitted CO2 level
         This is used for the CO2 background color
@@ -166,7 +174,7 @@ class OfficeMonitor:
             return (125, 62, 71)
 
     @functools.lru_cache(maxsize=128)
-    def co2_level_icon_color(self, co2_level: int) -> tuple:
+    def co2_level_icon_color(self, co2_level: int) -> tuple[int, int, int]:
         """
         Returns a color based on the submitted CO2 level
         This is used for the CO2 icon background color

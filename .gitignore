@@ -193,3 +193,6 @@ vite.config.js.timestamp-*
 .test-tmp
 symlink-from
 .idea/
+
+
+log.txt
