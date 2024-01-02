@@ -22,7 +22,20 @@ except Exception as e:
         headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
     )
 
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "spidev", "rich", "requests", "Pillow", "scd4x", "ST7789"])
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "spidev",
+            "rich",
+            "requests",
+            "scd4x",
+            "ST7789",
+            "Pillow",
+        ]
+    )
 
 
 @dataclass
