@@ -2,6 +2,8 @@ import functools
 import json
 import logging
 import os
+import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from logging import Formatter, Logger, StreamHandler
@@ -19,6 +21,8 @@ except Exception as e:
         data=f"James' monitor error import: {e}",
         headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
     )
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "spidev", "rich", "requests", "Pillow", "scd4x", "ST7789"])
 
 
 @dataclass
