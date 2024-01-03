@@ -197,3 +197,4 @@ symlink-from
 
 log.txt
 play.py
+server/settings.json

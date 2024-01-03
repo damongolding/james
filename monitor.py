@@ -7,6 +7,7 @@ import sys
 import time
 from dataclasses import dataclass
 from logging import Formatter, Logger, StreamHandler
+from subprocess import PIPE, Popen
 from time import struct_time
 
 import requests
@@ -16,12 +17,6 @@ try:
     from PIL import Image, ImageDraw, ImageFont
     from scd4x import SCD4X
 except Exception as e:
-    requests.post(
-        "https://ntfy.damongolding.com/james",
-        data=f"James' monitor error import: {e}",
-        headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
-    )
-
     subprocess.check_call(
         [
             sys.executable,
@@ -72,11 +67,10 @@ class Settings:
     on_continually: bool
     start_time: int
     end_time: int
+    compensate_temperature: bool
 
 
 class OfficeMonitor:
-    SERVER_IP: str = "http://192.168.86.131:8123"
-    HOMEASSISTANT_API_TOKEN: str = ""
 
     HOUR_STARTUP: int = 7
     HOUR_SHUTOFF: int = 16
@@ -85,6 +79,10 @@ class OfficeMonitor:
     FONT_SIZE: int = 152
 
     past_co2: int = 0
+
+    factor = 2.6  # Smaller numbers adjust temp down, vice versa
+    smooth_size = 10  # Dampens jitter due to rapid CPU temp changes
+    cpu_temps = []
 
     settings: Settings
 
@@ -129,14 +127,6 @@ class OfficeMonitor:
 
         self.load_settings()
 
-        try:
-            requests.post(
-                "https://ntfy.damongolding.com/james",
-                data=f"James' monitor starting up. On con: {self.settings.on_continually}",
-                headers={"Authorization": "Basic ZGFtb246VG9ydG9pc2UwOQ=="},
-            )
-        except:
-            pass
 
     def load_settings(self):
         try:
@@ -147,6 +137,7 @@ class OfficeMonitor:
                     on_continually=settings.get("onContinually", True),
                     start_time=settings.get("startTime", 7),
                     end_time=settings.get("endTime", 18),
+                    compensate_temperature=settings.get("compensateTemperature", True),
                 )
         except:
             self.settings = Settings(
@@ -154,6 +145,7 @@ class OfficeMonitor:
                 on_continually=True,
                 start_time=7,
                 end_time=18,
+                compensate_temperature=True,
             )
 
     def init_logging(self) -> None:
@@ -168,6 +160,30 @@ class OfficeMonitor:
         )
         self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
+
+    # Gets the CPU temperature in degrees C
+    def get_cpu_temperature(self):
+        process = Popen(["vcgencmd", "measure_temp"], stdout=PIPE)
+        output, _error = process.communicate()
+        output = output.decode()
+        return float(output[output.index("=") + 1 : output.rindex("'")])
+
+    def get_comp_temperature(self, temperature: float) -> float:
+        self.cpu_temp = self.get_cpu_temperature()
+        self.cpu_temps.append(self.cpu_temp)
+
+        if len(self.cpu_temps) > self.smooth_size:
+            self.cpu_temps = self.cpu_temps[1:]
+
+        smoothed_cpu_temp: float = sum(self.cpu_temps) / float(len(self.cpu_temps))
+        comp_temperature: float = temperature - (
+            (smoothed_cpu_temp - temperature) / self.factor
+        )
+
+        if not self.settings.use_celsius:
+            comp_temperature = self.celsius_to_fahrenheit(comp_temperature)
+
+        return comp_temperature
 
     def celsius_to_fahrenheit(self, temp: float) -> float:
         return (temp * 9 / 5) + 32
@@ -234,6 +250,12 @@ class OfficeMonitor:
 
                 if not self.settings.use_celsius:
                     temperature = self.celsius_to_fahrenheit(temperature)
+
+                comp_temperature = 0.0
+
+                if self.settings.compensate_temperature:
+                    comp_temperature = self.get_comp_temperature(temperature)
+
             except Exception as e:
                 self.logger.error(e)
                 time.sleep(1)
@@ -247,7 +269,11 @@ class OfficeMonitor:
             statistics: list[Statistic] = [
                 Statistic(
                     name="temperature",
-                    value=f"{temperature:.1f}".rstrip("0").rstrip("."),
+                    value=f"{temperature if not self.settings.compensate_temperature else comp_temperature:.1f}".rstrip(
+                        "0"
+                    ).rstrip(
+                        "."
+                    ),
                     unit="°",
                     position=(368, 93),
                     box=Box(
@@ -257,7 +283,7 @@ class OfficeMonitor:
                         color=(42, 139, 110),
                     ),
                     icon=Icon(
-                        path=f"{self.DIR_PATH}/assets/icons/thermometer.png",
+                        path=f"{self.DIR_PATH}/assets/icons/thermometer{'-comp' if self.settings.compensate_temperature else ''}.png",
                         position=(72, 72),
                         width=224,
                         height=224,

@@ -13,10 +13,11 @@ import (
 )
 
 type Settings struct {
-	UseCelsius    bool `json:"useCelsius"`
-	OnContinually bool `json:"onContinually"`
-	StartTime     int  `json:"startTime"`
-	EndTime       int  `json:"endTime"`
+	UseCelsius             bool `json:"useCelsius"`
+	OnContinually          bool `json:"onContinually"`
+	StartTime              int  `json:"startTime"`
+	EndTime                int  `json:"endTime"`
+	CompensatedTemperature bool `json:"compensatedTemperature"`
 }
 
 func loadSettings() (Settings, error) {
@@ -81,6 +82,7 @@ func main() {
 		onContinually, err := strconv.ParseBool(c.PostForm("on-continually"))
 		startTime, err := strconv.Atoi(c.PostForm("start-time"))
 		endTime, err := strconv.Atoi(c.PostForm("end-time"))
+		compensatedTemperature, err := strconv.ParseBool(c.PostForm("compensated-temperature"))
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(http.StatusOK, gin.H{
@@ -91,10 +93,11 @@ func main() {
 		}
 
 		settings := Settings{
-			UseCelsius:    useCelsius,
-			OnContinually: onContinually,
-			StartTime:     startTime,
-			EndTime:       endTime,
+			UseCelsius:             useCelsius,
+			OnContinually:          onContinually,
+			StartTime:              startTime,
+			EndTime:                endTime,
+			CompensatedTemperature: compensatedTemperature,
 		}
 
 		err = saveSettings(settings)

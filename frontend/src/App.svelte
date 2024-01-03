@@ -5,7 +5,7 @@
 
     import "./app.css";
     // @ts-ignore
-    import { Icon } from "flowbite-svelte-icons"; // @ts-ignore
+    import { CheckCircleSolid } from "flowbite-svelte-icons"; // @ts-ignore
     import RangeSlider from "svelte-range-slider-pips"; // @ts-ignore
 
     interface Settings {
@@ -13,6 +13,7 @@
         onContinually: boolean;
         startTime: number;
         endTime: number;
+        compensatedTemperature: boolean;
     }
 
     interface Response {
@@ -23,6 +24,7 @@
     let onContinually = false;
     let values = [7, 18];
     let useCelsius = true;
+    let compensatedTemperature = true;
 
     const sliderVerticalMax = 1025;
     let windowWidth = 0;
@@ -82,6 +84,7 @@
             useCelsius = settings.useCelsius;
             onContinually = settings.onContinually;
             values = [settings.startTime, settings.endTime];
+            compensatedTemperature = settings.compensatedTemperature;
         } catch {
             console.error("Couldn't get settings");
         }
@@ -125,6 +128,35 @@
                     <label for="f" class="pl-2 cursor-pointer">Fahrenheit</label
                     >
                 </div>
+            </div>
+            <div>
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        id="compensated-temperature"
+                        name="compensated-temperature"
+                        class="cursor-pointer"
+                        value="true"
+                        bind:checked={compensatedTemperature}
+                    />
+                    <label
+                        for="compensated-temperature"
+                        class="pl-2 cursor-pointer"
+                    >
+                        <h2 class="text-xl">Offset sensor temperature</h2>
+                    </label>
+                </div>
+                <p class="pt-1 text-gray-700">
+                    <small>
+                        {#if compensatedTemperature}
+                            Disabling this will use the raw output from the C02
+                            sensor.
+                        {:else}
+                            Enabling this will offset the output from the C02
+                            sensor using CPU temperature.
+                        {/if}
+                    </small>
+                </p>
             </div>
             <div class="">
                 <div class="flex items-center">
@@ -193,7 +225,7 @@
     bind:open={showToast}
 >
     <svelte:fragment slot="icon">
-        <Icon name="check-circle-solid" class="w-5 h-5" />
+        <CheckCircleSolid name="check-circle-solid" class="w-5 h-5" />
         <span class="sr-only">Check icon</span>
     </svelte:fragment>
     Settings saved.
