@@ -68,10 +68,10 @@ class Settings:
     start_time: int
     end_time: int
     compensate_temperature: bool
+    compensate_temperature_factor: float
 
 
 class OfficeMonitor:
-
     HOUR_STARTUP: int = 7
     HOUR_SHUTOFF: int = 16
     MIN_SHUTOFF: int = 29
@@ -80,9 +80,8 @@ class OfficeMonitor:
 
     past_co2: int = 0
 
-    factor = 2.6  # Smaller numbers adjust temp down, vice versa
-    smooth_size = 10  # Dampens jitter due to rapid CPU temp changes
-    cpu_temps = []
+    smooth_size = 10
+    cpu_temps: list[float] = []
 
     settings: Settings
 
@@ -127,7 +126,6 @@ class OfficeMonitor:
 
         self.load_settings()
 
-
     def load_settings(self):
         try:
             with open(f"{self.DIR_PATH}/server/settings.json", "r") as f:
@@ -138,6 +136,9 @@ class OfficeMonitor:
                     start_time=settings.get("startTime", 7),
                     end_time=settings.get("endTime", 18),
                     compensate_temperature=settings.get("compensateTemperature", True),
+                    compensate_temperature_factor=settings.get(
+                        "compensateTemperatureFactor", 2.6
+                    ),
                 )
         except:
             self.settings = Settings(
@@ -146,6 +147,7 @@ class OfficeMonitor:
                 start_time=7,
                 end_time=18,
                 compensate_temperature=True,
+                compensate_temperature_factor=2.6,
             )
 
     def init_logging(self) -> None:
@@ -177,7 +179,8 @@ class OfficeMonitor:
 
         smoothed_cpu_temp: float = sum(self.cpu_temps) / float(len(self.cpu_temps))
         comp_temperature: float = temperature - (
-            (smoothed_cpu_temp - temperature) / self.factor
+            (smoothed_cpu_temp - temperature)
+            / self.settings.compensate_temperature_factor
         )
 
         if not self.settings.use_celsius:
@@ -187,23 +190,6 @@ class OfficeMonitor:
 
     def celsius_to_fahrenheit(self, temp: float) -> float:
         return (temp * 9 / 5) + 32
-
-    def update_homeassistant(self, co2_level: int) -> None:
-        """
-        Updates the Home Assistant config file with the latest CO2 level
-        """
-        try:
-            requests.post(
-                url=f"{self.SERVER_IP}/api/states/input_number.office_monitor",
-                headers={
-                    "Authorization": f"Bearer {self.HOMEASSISTANT_API_TOKEN}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({"state": co2_level}),
-            )
-
-        except Exception as e:
-            self.logger.error(e)
 
     @functools.lru_cache(maxsize=128)
     def co2_level_color(self, co2_level: int) -> tuple[int, int, int]:
@@ -246,7 +232,7 @@ class OfficeMonitor:
             # Get the latest data from the sensor
             # If the sensor is not connected or not ready, log error, wait 1 second and try again
             try:
-                co2, temperature, relative_humidity, timestamp = self.device.measure()  # type: ignore
+                co2, temperature, relative_humidity, _ = self.device.measure()  # type: ignore
 
                 if not self.settings.use_celsius:
                     temperature = self.celsius_to_fahrenheit(temperature)

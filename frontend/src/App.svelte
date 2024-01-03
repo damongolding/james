@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Toast } from "flowbite-svelte";
     import { onMount } from "svelte";
-    import { fly } from "svelte/transition";
+    import { fade } from "svelte/transition";
 
     import "./app.css";
     // @ts-ignore
@@ -13,7 +13,8 @@
         onContinually: boolean;
         startTime: number;
         endTime: number;
-        compensatedTemperature: boolean;
+        compensateTemperature: boolean;
+        compensateTemperatureFactor: number;
     }
 
     interface Response {
@@ -24,7 +25,8 @@
     let onContinually = false;
     let values = [7, 18];
     let useCelsius = true;
-    let compensatedTemperature = true;
+    let compensateTemperature = true;
+    let compensateTemperatureFactor = 2.6;
 
     const sliderVerticalMax = 1025;
     let windowWidth = 0;
@@ -84,7 +86,8 @@
             useCelsius = settings.useCelsius;
             onContinually = settings.onContinually;
             values = [settings.startTime, settings.endTime];
-            compensatedTemperature = settings.compensatedTemperature;
+            compensateTemperature = settings.compensateTemperature;
+            compensateTemperatureFactor = settings.compensateTemperatureFactor;
         } catch {
             console.error("Couldn't get settings");
         }
@@ -129,18 +132,19 @@
                     >
                 </div>
             </div>
+            <hr />
             <div>
                 <div class="flex items-center">
                     <input
                         type="checkbox"
-                        id="compensated-temperature"
-                        name="compensated-temperature"
+                        id="compensate-temperature"
+                        name="compensate-temperature"
                         class="cursor-pointer"
-                        value="true"
-                        bind:checked={compensatedTemperature}
+                        value={compensateTemperature}
+                        bind:checked={compensateTemperature}
                     />
                     <label
-                        for="compensated-temperature"
+                        for="compensate-temperature"
                         class="pl-2 cursor-pointer"
                     >
                         <h2 class="text-xl">Offset sensor temperature</h2>
@@ -148,7 +152,7 @@
                 </div>
                 <p class="pt-1 text-gray-700">
                     <small>
-                        {#if compensatedTemperature}
+                        {#if compensateTemperature}
                             Disabling this will use the raw output from the C02
                             sensor.
                         {:else}
@@ -158,6 +162,36 @@
                     </small>
                 </p>
             </div>
+            <div class={compensateTemperature ? "" : "disabled"}>
+                <div class="flex flex-col items-cnter">
+                    <label
+                        for="compensate-temperature-factor"
+                        class="cursor-pointer"
+                    >
+                        <h3 class="text-md">Compensate factor*</h3>
+                    </label>
+                    <p class="pb-2 text-gray-700">
+                        <small>Lower = more compensation</small>
+                    </p>
+                    <input
+                        type="number"
+                        id="compensate-temperature-factor"
+                        name="compensate-temperature-factor"
+                        class="cursor-pointer w-32"
+                        step="0.1"
+                        bind:value={compensateTemperatureFactor}
+                    />
+                    <p class="pb-2 mt-4 text-gray-700">
+                        <small
+                            >* Formula used: <code
+                                class="bg-gray-700 text-white px-4 py-2 rounded-md ml-4"
+                                >raw_temp - ((cpu_temp - raw_temp) / {compensateTemperatureFactor}))</code
+                            ></small
+                        >
+                    </p>
+                </div>
+            </div>
+            <hr />
             <div class="">
                 <div class="flex items-center">
                     <input
@@ -219,7 +253,7 @@
 <Toast
     color="none"
     position="bottom-right"
-    transition={fly}
+    transition={fade}
     params={{ x: 200 }}
     divClass="w-full max-w-xs p-4 text-white bg-green-600 shadow gap-3"
     bind:open={showToast}

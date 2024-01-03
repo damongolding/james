@@ -13,11 +13,12 @@ import (
 )
 
 type Settings struct {
-	UseCelsius             bool `json:"useCelsius"`
-	OnContinually          bool `json:"onContinually"`
-	StartTime              int  `json:"startTime"`
-	EndTime                int  `json:"endTime"`
-	CompensatedTemperature bool `json:"compensatedTemperature"`
+	UseCelsius                  bool    `json:"useCelsius"`
+	OnContinually               bool    `json:"onContinually"`
+	StartTime                   int     `json:"startTime"`
+	EndTime                     int     `json:"endTime"`
+	CompensateTemperature       bool    `json:"compensateTemperature"`
+	CompensateTemperatureFactor float64 `json:"compensateTemperatureFactor"`
 }
 
 func loadSettings() (Settings, error) {
@@ -66,6 +67,12 @@ func init() {
 
 }
 
+func defaultSetter[T int | bool | float64](err error, v *T, defaultValue T) {
+	if err != nil {
+		*v = defaultValue
+	}
+}
+
 func main() {
 	r := gin.Default()
 
@@ -79,25 +86,30 @@ func main() {
 	r.POST("/", func(c *gin.Context) {
 
 		useCelsius, err := strconv.ParseBool(c.PostForm("use-celsius"))
+		defaultSetter(err, &useCelsius, false)
+
 		onContinually, err := strconv.ParseBool(c.PostForm("on-continually"))
+		defaultSetter(err, &onContinually, false)
+
 		startTime, err := strconv.Atoi(c.PostForm("start-time"))
+		defaultSetter(err, &startTime, 7)
+
 		endTime, err := strconv.Atoi(c.PostForm("end-time"))
-		compensatedTemperature, err := strconv.ParseBool(c.PostForm("compensated-temperature"))
-		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"saved":   false,
-			})
-			return
-		}
+		defaultSetter(err, &endTime, 18)
+
+		compensateTemperature, err := strconv.ParseBool(c.PostForm("compensate-temperature"))
+		defaultSetter(err, &compensateTemperature, false)
+
+		compensateTemperatureFactor, err := strconv.ParseFloat(c.PostForm("compensate-temperature-factor"), 64)
+		defaultSetter(err, &compensateTemperatureFactor, 2.6)
 
 		settings := Settings{
-			UseCelsius:             useCelsius,
-			OnContinually:          onContinually,
-			StartTime:              startTime,
-			EndTime:                endTime,
-			CompensatedTemperature: compensatedTemperature,
+			UseCelsius:                  useCelsius,
+			OnContinually:               onContinually,
+			StartTime:                   startTime,
+			EndTime:                     endTime,
+			CompensateTemperature:       compensateTemperature,
+			CompensateTemperatureFactor: compensateTemperatureFactor,
 		}
 
 		err = saveSettings(settings)
@@ -126,5 +138,5 @@ func main() {
 		c.JSON(http.StatusOK, settings)
 	})
 
-	r.Run(":80")
+	r.Run(":8080")
 }
