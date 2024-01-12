@@ -19,6 +19,7 @@ type Settings struct {
 	EndTime                     int     `json:"endTime"`
 	CompensateTemperature       bool    `json:"compensateTemperature"`
 	CompensateTemperatureFactor float64 `json:"compensateTemperatureFactor"`
+	ManualTemperatureOffset     float64 `json:"manualTemperatureOffset"`
 }
 
 func loadSettings() (Settings, error) {
@@ -103,6 +104,9 @@ func main() {
 		compensateTemperatureFactor, err := strconv.ParseFloat(c.PostForm("compensate-temperature-factor"), 64)
 		defaultSetter(err, &compensateTemperatureFactor, 2.6)
 
+		manualTemperatureOffset, err := strconv.ParseFloat(c.PostForm("manual-temperature-offset"), 64)
+		defaultSetter(err, &manualTemperatureOffset, 0.0)
+
 		settings := Settings{
 			UseCelsius:                  useCelsius,
 			OnContinually:               onContinually,
@@ -110,6 +114,7 @@ func main() {
 			EndTime:                     endTime,
 			CompensateTemperature:       compensateTemperature,
 			CompensateTemperatureFactor: compensateTemperatureFactor,
+			ManualTemperatureOffset:     manualTemperatureOffset,
 		}
 
 		err = saveSettings(settings)

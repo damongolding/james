@@ -69,6 +69,7 @@ class Settings:
     end_time: int
     compensate_temperature: bool
     compensate_temperature_factor: float
+    manual_temperature_offset: float
 
 
 class OfficeMonitor:
@@ -139,6 +140,9 @@ class OfficeMonitor:
                     compensate_temperature_factor=settings.get(
                         "compensateTemperatureFactor", 2.6
                     ),
+                    manual_temperature_offset=settings.get(
+                        "manualTemperatureOffset", 0.0
+                    ),
                 )
         except:
             self.settings = Settings(
@@ -148,6 +152,7 @@ class OfficeMonitor:
                 end_time=18,
                 compensate_temperature=True,
                 compensate_temperature_factor=2.6,
+                manual_temperature_offset=0.0,
             )
 
     def init_logging(self) -> None:
@@ -234,6 +239,9 @@ class OfficeMonitor:
             try:
                 co2, temperature, relative_humidity, _ = self.device.measure()  # type: ignore
 
+                if self.settings.manual_temperature_offset != 0.0:
+                    temperature += self.settings.manual_temperature_offset
+
                 if not self.settings.use_celsius:
                     temperature = self.celsius_to_fahrenheit(temperature)
 
@@ -269,7 +277,7 @@ class OfficeMonitor:
                         color=(42, 139, 110),
                     ),
                     icon=Icon(
-                        path=f"{self.DIR_PATH}/assets/icons/thermometer{'-comp' if self.settings.compensate_temperature else ''}.png",
+                        path=f"{self.DIR_PATH}/assets/icons/thermometer{'-comp' if self.settings.compensate_temperature else ''}{'-manual' if self.settings.manual_temperature_offset != 0.0 else ''}.png",
                         position=(72, 72),
                         width=224,
                         height=224,

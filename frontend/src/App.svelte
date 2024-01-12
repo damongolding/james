@@ -15,6 +15,7 @@
         endTime: number;
         compensateTemperature: boolean;
         compensateTemperatureFactor: number;
+        manualTemperatureOffset: number;
     }
 
     interface Response {
@@ -27,6 +28,7 @@
     let useCelsius = true;
     let compensateTemperature = true;
     let compensateTemperatureFactor = 2.6;
+    let manualTemperatureOffset = 0;
 
     const sliderVerticalMax = 1025;
     let windowWidth = 0;
@@ -88,6 +90,7 @@
             values = [settings.startTime, settings.endTime];
             compensateTemperature = settings.compensateTemperature;
             compensateTemperatureFactor = settings.compensateTemperatureFactor;
+            manualTemperatureOffset = settings.manualTemperatureOffset;
         } catch {
             console.error("Couldn't get settings");
         }
@@ -134,6 +137,40 @@
             </div>
             <hr />
             <div>
+                <div class="flex flex-col items-start">
+                    <label for=""><h3>Manual temperature offset</h3> </label>
+                    <p class=" text-gray-700">
+                        <small
+                            >Use a negative number to lower sensor reading</small
+                        >
+                    </p>
+                    <p class="pb-2 text-red-700">
+                        <small
+                            >⚠️ Enabling CPU compensation will negate/bypass
+                            this</small
+                        >
+                    </p>
+                    <input
+                        type="number"
+                        id="manual-temperature-offset"
+                        name="manual-temperature-offset"
+                        class="cursor-pointer w-32"
+                        step="0.1"
+                        bind:value={manualTemperatureOffset}
+                    />
+                    <p class="pb-2 mt-4 text-gray-700">
+                        <small
+                            >* Formula used: <code
+                                class="bg-gray-700 text-white px-4 py-2 rounded-md ml-4"
+                                >raw_temp + manualTemperatureOffset e.g. 22 + {manualTemperatureOffset}
+                                = {22 + manualTemperatureOffset}c
+                            </code></small
+                        >
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div>
                 <div class="flex items-center">
                     <input
                         type="checkbox"
@@ -147,7 +184,7 @@
                         for="compensate-temperature"
                         class="pl-2 cursor-pointer"
                     >
-                        <h2 class="text-xl">Offset sensor temperature</h2>
+                        <h2 class="text-xl">CPU temperature compensate</h2>
                     </label>
                 </div>
                 <p class="pt-1 text-gray-700">
@@ -163,7 +200,7 @@
                 </p>
             </div>
             <div class={compensateTemperature ? "" : "disabled"}>
-                <div class="flex flex-col items-cnter">
+                <div class="flex flex-col items-start">
                     <label
                         for="compensate-temperature-factor"
                         class="cursor-pointer"
